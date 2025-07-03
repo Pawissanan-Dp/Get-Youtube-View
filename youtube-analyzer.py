@@ -3,16 +3,13 @@ import pandas as pd
 import re
 from datetime import datetime
 from googleapiclient.discovery import build
-from functools import lru_cache
 
-# Cache decorated function for channel data
 @st.cache_data(ttl=3600)
 def fetch_channel_data(api_key, channel_id):
     youtube_api = build('youtube', 'v3', developerKey=api_key)
     response = youtube_api.channels().list(part='contentDetails,snippet', id=channel_id).execute()
     return response
 
-# Cache decorated function for playlist items
 @st.cache_data(ttl=1800)
 def fetch_playlist_items(api_key, playlist_id, page_token=""):
     youtube_api = build('youtube', 'v3', developerKey=api_key)
@@ -23,8 +20,7 @@ def fetch_playlist_items(api_key, playlist_id, page_token=""):
         pageToken=page_token
     ).execute()
 
-# Main data fetch
-def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, keyword, hashtag_keywords, include_description, max_videos):
+def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, keyword, hashtag_keywords):
     try:
         youtube_api = build('youtube', 'v3', developerKey=api_key)
 
@@ -51,8 +47,7 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
         }
 
         next_page_token = ''
-        video_count = 0
-        while next_page_token is not None and video_count < max_videos:
+        while next_page_token is not None:
             playlist_items_response = fetch_playlist_items(api_key, uploads_playlist_id, next_page_token)
             video_ids = []
             video_publish_map = {}
@@ -66,9 +61,6 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
                     video_ids.append(vid)
 
             for video_id in video_ids:
-                if video_count >= max_videos:
-                    break
-
                 video_response = youtube_api.videos().list(part='statistics,snippet', id=video_id).execute()
                 snippet = video_response['items'][0]['snippet']
                 statistics = video_response['items'][0]['statistics']
@@ -84,26 +76,21 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
                         continue
 
                 # Description and hashtag filtering
-                if include_description:
-                    description = snippet.get('description', '')
-                    hashtags = re.findall(r'#\S+', description)
-                    hashtags_lower = [h.lower() for h in hashtags]
+                description = snippet.get('description', '')
+                hashtags = re.findall(r'#\S+', description)
+                hashtags_lower = [h.lower() for h in hashtags]
 
-                    if hashtag_keywords:
-                        if not any(h in hashtags_lower for h in hashtag_keywords):
-                            continue
+                if hashtag_keywords:
+                    if not any(h in hashtags_lower for h in hashtag_keywords):
+                        continue
 
-                    description_output = ', '.join(hashtags)
-                else:
-                    description_output = ''
+                description_output = ', '.join(hashtags)
 
                 video_data['Channel Name'].append(channel_name)
                 video_data['Video Title'].append(video_title)
                 video_data['Description'].append(description_output)
                 video_data['Published Date'].append(published_date.date())
                 video_data['View Count'].append(view_count)
-
-                video_count += 1
 
             next_page_token = playlist_items_response.get('nextPageToken')
 
@@ -116,7 +103,7 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
 # Streamlit UI
 st.title("📊 YouTube Channel Hashtag Extractor + Quota Estimator")
 
-api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password")
+api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password", value=AIzaSyCmTU_fvEwSriNbnxyy1Nv8sRuhMKgLTV0)
 
 channel_ids_input = st.text_area("📺 Enter YouTube Channel IDs (one per line):")
 channel_ids = [c.strip() for c in channel_ids_input.splitlines() if c.strip()]
@@ -139,16 +126,12 @@ with col2:
     end_month_year = st.text_input("End Month & Year (MMYYYY)", value="062024")
 
 keyword = st.text_input("🔍 Filter by keyword in title or description (optional):").lower()
-hashtag_filter = st.text_input("🔎 Filter by hashtag(s), separated by commas (e.g. #Ad, #Marketing)").lower()
-include_description = st.checkbox("Include video hashtags)", value=True)
-
+hashtag_filter = st.text_input("🔎 Filter by hashtag(s), separated by commas (e.g. #AI, #tech)").lower()
 hashtag_keywords = [tag.strip() for tag in hashtag_filter.split(',') if tag.strip()]
 
-max_videos_per_channel = st.slider("🎯 Max videos to fetch per channel", min_value=10, max_value=500, value=100, step=10)
-
-# Quota Estimator
-estimated_playlist_cost = (max_videos_per_channel // 50 + 1) * len(channel_ids)
-estimated_video_cost = max_videos_per_channel * len(channel_ids)
+# Quota Estimator (fixed logic)
+estimated_playlist_cost = 5 * len(channel_ids)  # assuming up to 5 pages per channel
+estimated_video_cost = 250 * len(channel_ids)   # estimated 250 videos per channel
 estimated_channel_cost = len(channel_ids)
 total_estimate = estimated_channel_cost + estimated_playlist_cost + estimated_video_cost
 
@@ -161,7 +144,7 @@ if st.button("Run Analysis"):
         df_list = []
         with st.spinner("Fetching data from YouTube..."):
             for cid in channel_ids:
-                df = fetch_youtube_data(api_key, cid, start_month_year, end_month_year, keyword, hashtag_keywords, include_description, max_videos_per_channel)
+                df = fetch_youtube_data(api_key, cid, start_month_year, end_month_year, keyword, hashtag_keywords)
                 if df is not None and not df.empty:
                     df_list.append(df)
 
