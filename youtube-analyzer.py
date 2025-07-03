@@ -45,7 +45,7 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
         video_data = {
             'Channel Name': [],
             'Video Title': [],
-            'Description': []
+            'Description': [],
             'Published Date': [],
             'View Count': []
         }
