@@ -101,7 +101,7 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
         return None
 
 # Streamlit UI
-st.title("📊 YouTube Channel Hashtag Extractor + Quota Estimator")
+st.title("📊 YouTube Channel View Extractor")
 
 api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password", value="AIzaSyCmTU_fvEwSriNbnxyy1Nv8sRuhMKgLTV0")
 
@@ -128,14 +128,6 @@ with col2:
 keyword = st.text_input("🔍 Filter by keyword in title or description (optional):").lower()
 hashtag_filter = st.text_input("🔎 Filter by hashtag(s), separated by commas (e.g. #AI, #tech)").lower()
 hashtag_keywords = [tag.strip() for tag in hashtag_filter.split(',') if tag.strip()]
-
-# Quota Estimator (fixed logic)
-estimated_playlist_cost = 5 * len(channel_ids)  # assuming up to 5 pages per channel
-estimated_video_cost = 250 * len(channel_ids)   # estimated 250 videos per channel
-estimated_channel_cost = len(channel_ids)
-total_estimate = estimated_channel_cost + estimated_playlist_cost + estimated_video_cost
-
-st.info(f"Estimated API quota usage: {total_estimate} units")
 
 if st.button("Run Analysis"):
     if not api_key or not channel_ids or not start_month_year or not end_month_year:
