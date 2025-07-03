@@ -103,7 +103,7 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
 # Streamlit UI
 st.title("📊 YouTube Channel Hashtag Extractor + Quota Estimator")
 
-api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password", value=AIzaSyCmTU_fvEwSriNbnxyy1Nv8sRuhMKgLTV0)
+api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password", value="AIzaSyCmTU_fvEwSriNbnxyy1Nv8sRuhMKgLTV0")
 
 channel_ids_input = st.text_area("📺 Enter YouTube Channel IDs (one per line):")
 channel_ids = [c.strip() for c in channel_ids_input.splitlines() if c.strip()]
@@ -121,9 +121,9 @@ with st.expander("❓ How to find a YouTube Channel ID"):
 
 col1, col2 = st.columns(2)
 with col1:
-    start_month_year = st.text_input("Start Month & Year (MMYYYY)", value="012023")
+    start_month_year = st.text_input("Start Month & Year (MMYYYY)")
 with col2:
-    end_month_year = st.text_input("End Month & Year (MMYYYY)", value="062024")
+    end_month_year = st.text_input("End Month & Year (MMYYYY)")
 
 keyword = st.text_input("🔍 Filter by keyword in title or description (optional):").lower()
 hashtag_filter = st.text_input("🔎 Filter by hashtag(s), separated by commas (e.g. #AI, #tech)").lower()
