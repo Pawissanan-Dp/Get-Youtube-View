@@ -103,7 +103,7 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
 # Streamlit UI
 st.title("📊 YouTube Channel View Extractor")
 
-api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password", value="AIzaSyCmTU_fvEwSriNbnxyy1Nv8sRuhMKgLTV0")
+api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password")
 
 channel_ids_input = st.text_area("📺 Enter YouTube Channel IDs (one per line):")
 channel_ids = [c.strip() for c in channel_ids_input.splitlines() if c.strip()]
