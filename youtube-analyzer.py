@@ -101,7 +101,9 @@ def fetch_youtube_data(api_key, channel_id, start_month_year, end_month_year, ke
         return None
 
 # Streamlit UI
-st.title("📊 YouTube Channel View Extractor")
+st.title("YouTube Channel View Extractor")
+
+st.markdown("Report bug: Pawissanan.Denphatcharangkul@initiative.com")
 
 api_key = st.text_input("🔑 Enter your YouTube API Key:", type="password")
 
