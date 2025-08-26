@@ -1,7 +1,7 @@
 # Get-Youtube-View
 Get YouTube view via YouTube Data API v3
 
-[![Open in Streamlit]](https://get-youtube-view-jk7xg3ztxrzzgr8jnkbaa7.streamlit.app/)
+[![Open in Streamlit](https://get-youtube-view-jk7xg3ztxrzzgr8jnkbaa7.streamlit.app/)
 
 ### How to run it on your own machine
 
